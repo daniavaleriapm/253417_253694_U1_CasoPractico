@@ -1,0 +1,78 @@
+' Pega cada bloque en https://www.plantuml.com/plantuml o en draw.io (Arrange > Insert > Advanced > PlantUML)
+
+@startuml DiagramaDeClases
+skinparam classAttributeIconSize 0
+
+abstract class Usuario {
+  - nombreCompleto : String
+  + Usuario(nombreCompleto : String)
+  + getNombreCompleto() : String
+  + {abstract} getTipo() : String
+}
+class Estudiante {
+  + getTipo() : String
+}
+class Docente {
+  + getTipo() : String
+}
+class Equipo {
+  - numero : int
+  - enUso : boolean
+  + getNumero() : int
+  + isEnUso() : boolean
+  + setEnUso(enUso : boolean) : void
+}
+class RegistroUso {
+  - inicio : LocalDateTime
+  + getEquipo() : Equipo
+  + getUsuario() : Usuario
+  + getInicio() : LocalDateTime
+}
+class Bitacora {
+  - registros : RegistroUso[]
+  - total : int
+  + agregar(registro : RegistroUso) : void
+  + historialPorEquipo(numero : int) : RegistroUso[]
+  + historialPorUsuario(nombre : String) : RegistroUso[]
+}
+class Laboratorio {
+  - equipos : Equipo[10]
+  - bitacora : Bitacora
+  + iniciarSesion(numero : int, usuario : Usuario) : RegistroUso
+  + liberarEquipo(numero : int) : boolean
+  + buscarEquipo(numero : int) : Equipo
+}
+class Main {
+  + main(args : String[]) : void
+}
+
+Usuario <|-- Estudiante
+Usuario <|-- Docente
+Laboratorio "1" *-- "10" Equipo
+Laboratorio "1" *-- "1" Bitacora
+Bitacora "1" o-- "0..*" RegistroUso
+RegistroUso "*" --> "1" Equipo
+RegistroUso "*" --> "1" Usuario
+Main ..> Laboratorio
+@enduml
+
+@startuml DiagramaCasosDeUso
+left to right direction
+actor "Encargado del\nlaboratorio" as Enc
+rectangle "Sistema de control del laboratorio" {
+  usecase "Registrar inicio de práctica" as UC1
+  usecase "Liberar equipo" as UC2
+  usecase "Consultar estado de equipos" as UC3
+  usecase "Consultar historial por equipo" as UC4
+  usecase "Consultar historial por usuario" as UC5
+  usecase "Ver bitácora completa" as UC6
+  usecase "Validar equipo disponible" as UC7
+}
+Enc --> UC1
+Enc --> UC2
+Enc --> UC3
+Enc --> UC4
+Enc --> UC5
+Enc --> UC6
+UC1 ..> UC7 : <<include>>
+@enduml
